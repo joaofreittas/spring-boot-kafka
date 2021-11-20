@@ -1,0 +1,8 @@
+spring:
+  kafka:
+    bootstrap-servers: "localhost:29092"
+kafka:
+  topic:
+    name: "topic-1"
+    num-partitions: 4
+    replication-factor: "1"
