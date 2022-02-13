@@ -2,8 +2,8 @@ package com.home.kafka.config;
 
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
 
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -15,6 +15,7 @@ import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 @Configuration
@@ -37,9 +38,22 @@ public class ProducerKafkaConfig {
     }
 
     @Bean
+    public ProducerFactory<String, Object> jsonProducerFactory(){
+        var configs = new HashMap<String, Object>();
+        configs.put(BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        configs.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configs.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
+        return new DefaultKafkaProducerFactory<>(configs, new StringSerializer(), new JsonSerializer<>());
+    }
+
+    @Bean
     public KafkaTemplate<String, String> kafkaTemplate(){
         return new KafkaTemplate<>(producerFactory());
     }
+
+    @Bean
+    public KafkaTemplate<String, Serializable> jsonKafkaTemplate(){ return new KafkaTemplate(jsonProducerFactory()); }
 
     @Bean
     public KafkaAdmin kafkaAdmin(){
@@ -50,16 +64,24 @@ public class ProducerKafkaConfig {
     }
 
     @Bean
-    public NewTopic newTopic(
-            @Value("${kafka.topic.name}") String nameTopic,
-            @Value("${kafka.topic.num-partitions}") Integer numPartitions,
-            @Value("${kafka.topic.replication-factor}") String replicationFactor
+    public KafkaAdmin.NewTopics newTopic(
+            @Value("${kafka.topic-test.name}") String testNameTopic,
+            @Value("${kafka.topic-transaction.name}") String transactionNameTopic,
+            @Value("${kafka.topic-test.num-partitions}") Integer testNumPartitions,
+            @Value("${kafka.topic-transaction.num-partitions}") Integer transactionNumPartitions,
+            @Value("${kafka.topic-test.replication-factor}") String testReplicationFactor,
+            @Value("${kafka.topic-transaction.replication-factor}") String transactionReplicationFactor
     ){
-        return TopicBuilder
-                .name(nameTopic)
-                .partitions(numPartitions)
-                .build();
+//        return TopicBuilder
+//                .name(nameTopic)
+//                .partitions(numPartitions)
+//                .build();
         //return new NewTopic(nameTopic, numPartitions, Short.valueOf(replicationFactor));
+
+        return new KafkaAdmin.NewTopics(
+                TopicBuilder.name(testNameTopic).partitions(testNumPartitions).build(),
+                TopicBuilder.name(transactionNameTopic).partitions(transactionNumPartitions).build()
+        );
     }
 
 }

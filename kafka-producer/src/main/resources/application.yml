@@ -2,7 +2,11 @@ spring:
   kafka:
     bootstrap-servers: "localhost:29092"
 kafka:
-  topic:
+  topic-test:
     name: "topic-1"
+    num-partitions: 4
+    replication-factor: "1"
+  topic-transaction:
+    name: "transaction"
     num-partitions: 4
     replication-factor: "1"

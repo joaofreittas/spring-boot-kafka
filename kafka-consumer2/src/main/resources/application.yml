@@ -1,0 +1,10 @@
+server:
+    port: 8081
+
+spring:
+    kafka:
+        bootstrap-servers: "localhost:29092"
+        topic:
+            name: "topic-1"
+        group:
+            id: "group-1"

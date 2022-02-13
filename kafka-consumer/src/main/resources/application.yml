@@ -4,3 +4,9 @@ server:
 spring:
   kafka:
     bootstrap-servers: "localhost:29092"
+    topic-test:
+      name: "topic-1"
+    group:
+      id: "group-1"
+    topic-transaction:
+      name: "transaction"
